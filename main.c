@@ -17,7 +17,7 @@ int main(int argc, char **argv){
 
         ctx.framebuffer=NULL;
 
-        triangle_t triangle=triangle(0,0.5,0,-0.5,0,0,0.5,-0.2,0);
+        triangle_t triangle=triangle(0,0.5,0,-0.5,0,0,0.5,0.3,0);
 
         SDL_Init(SDL_INIT_VIDEO);
         

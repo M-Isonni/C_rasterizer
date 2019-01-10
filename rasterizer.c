@@ -34,69 +34,126 @@ void rasterize(context_t *ctx,triangle_t *triangle){
     if(slope_p0_p1<slope_p0_p2)
     {
         printf("left");
+        int y;
+        int x;
+        int x1;
+        float gradient;
+        float gradient1;
+        int index;
+        int index1;
+        int x2;    
+        for(y=p[0].raster_y;y<=p[1].raster_y;y++){
+            gradient=(float)(y-p[0].raster_y)/(float)(p[1].raster_y-p[0].raster_y);
+            x = lerp(p[0].raster_x,p[1].raster_x,gradient); 
+            index = (y*ctx->width+x)*4;  
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index]=255; 
+            gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
+            x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
+            index1 = (y*ctx->width+x1)*4;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1]=255; 
+            int index2;
+            for(x2=x;x2<x1;x2++){
+                index2 = (y*ctx->width+x2)*4;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2]=255; 
+            }
+        }  
+        for(y=p[1].raster_y;y<=p[2].raster_y;y++){
+            gradient=(float)(y-p[1].raster_y)/(float)(p[2].raster_y-p[1].raster_y);
+            x = lerp(p[1].raster_x,p[2].raster_x,gradient); 
+            index = (y*ctx->width+x)*4;  
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index]=255; 
+            gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
+            x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
+            index1 = (y*ctx->width+x1)*4;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1]=255; 
+            int index2;
+            for(x2=x;x2<x1;x2++){
+                index2 = (y*ctx->width+x2)*4;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2]=255; 
+            } 
+        }
     }
     else
+    {
         printf("right");
+        int y;
+        int x;
+        int x1;
+        float gradient;
+        float gradient1;
+        int index;
+        int index1;
+        int x2;    
+        for(y=p[0].raster_y;y<=p[1].raster_y;y++){
+            gradient=(float)(y-p[0].raster_y)/(float)(p[1].raster_y-p[0].raster_y);
+            x = lerp(p[0].raster_x,p[1].raster_x,gradient); 
+            index = (y*ctx->width+x)*4;  
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index]=255; 
+            gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
+            x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
+            index1 = (y*ctx->width+x1)*4;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1]=255; 
+            int index2;
+            for(x2=x1;x2<x;x2++){
+                index2 = (y*ctx->width+x2)*4;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2]=255; 
+            }
+        }  
+        for(y=p[1].raster_y;y<=p[2].raster_y;y++){
+            gradient=(float)(y-p[1].raster_y)/(float)(p[2].raster_y-p[1].raster_y);
+            x = lerp(p[1].raster_x,p[2].raster_x,gradient); 
+            index = (y*ctx->width+x)*4;  
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index++]=255;
+            ctx->framebuffer[index]=255; 
+            gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
+            x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
+            index1 = (y*ctx->width+x1)*4;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1++]=255;
+            ctx->framebuffer[index1]=255; 
+            int index2;
+            for(x2=x1;x2<x;x2++){
+                index2 = (y*ctx->width+x2)*4;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2++]=255;
+                ctx->framebuffer[index2]=255; 
+            } 
+       }
 
-    int y;
-    int x;
-    int x1;
-    float gradient;
-    float gradient1;
-    int index;
-    int index1;
-    int x2;    
-    for(y=p[0].raster_y;y<=p[1].raster_y;y++){
-
-        gradient=(float)(y-p[0].raster_y)/(float)(p[1].raster_y-p[0].raster_y);
-        x = lerp(p[0].raster_x,p[1].raster_x,gradient); 
-        index = (y*ctx->width+x)*4;  
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index]=255; 
-        gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
-        x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
-        index1 = (y*ctx->width+x1)*4;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1]=255; 
-        int index2;
-        for(x2=x;x2<x1;x2++){
-            index2 = (y*ctx->width+x2)*4;
-            ctx->framebuffer[index2++]=255;
-            ctx->framebuffer[index2++]=255;
-            ctx->framebuffer[index2++]=255;
-            ctx->framebuffer[index2]=255; 
-        }
-    }   
-    // y3=y;
-    // x3=x2;
-    for(y=p[1].raster_y;y<=p[2].raster_y;y++){
-        gradient=(float)(y-p[1].raster_y)/(float)(p[2].raster_y-p[1].raster_y);
-        x = lerp(p[1].raster_x,p[2].raster_x,gradient); 
-        index = (y*ctx->width+x)*4;  
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index]=255; 
-        gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
-        x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
-        index1 = (y*ctx->width+x1)*4;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1]=255; 
-        int index2;
-        for(x2=x;x2<x1;x2++){
-            index2 = (y*ctx->width+x2)*4;
-            ctx->framebuffer[index2++]=255;
-            ctx->framebuffer[index2++]=255;
-            ctx->framebuffer[index2++]=255;
-            ctx->framebuffer[index2]=255; 
-        } 
     }
+
+    
 }
 
 void put_pixel(context_t *ctx,triangle_t *triangle){
