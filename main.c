@@ -1,19 +1,13 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include "rasterizer.h"
-#include <stdlib.h>
-
 
 int main(int argc, char **argv){
 
         context_t ctx;
         ctx.width=600;
-        ctx.height=600;
+        ctx.height=600;        
         
-        // ctx.framebuffer=malloc(ctx.width*ctx.height*4);
-        // if(!ctx.framebuffer){
-        //     return -1;
-        // }
         #define triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2)\
             triangle_new(\
                 vertex_new(Vector3_new(x0,y0,z0)),\
@@ -23,7 +17,7 @@ int main(int argc, char **argv){
 
         ctx.framebuffer=NULL;
 
-        triangle_t triangle=triangle(0,0.5,0,-0.5,0,0,0.5,0,0);
+        triangle_t triangle=triangle(0,0.5,0,-0.5,0,0,0.5,-0.2,0);
 
         SDL_Init(SDL_INIT_VIDEO);
         

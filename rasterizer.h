@@ -30,3 +30,4 @@ triangle_t triangle_new(vertex_t a,vertex_t b, vertex_t c);
 void rasterize(context_t *ctx,triangle_t *triangle);
 void put_pixel(context_t *ctx,triangle_t *triangle);
 void clear_screen(context_t *ctx);
+void bubble_sort(vertex_t *vertexes, int size);

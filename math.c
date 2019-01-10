@@ -10,4 +10,8 @@ Vector3_t Vector3_zero(){
     return vec;
 }
 
-//float lerp(float start,float end,)
+float lerp(float start,float end,float gradient){
+    return start + (end-start)*gradient;
+}
+
+//SlopeX = (x1-x0)/(y1-y0)
