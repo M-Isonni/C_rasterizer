@@ -23,21 +23,21 @@ int main(int argc, char **argv){
         Vector3_t *camera=Vector3_new(0,0,-5);
 
         ctx.framebuffer=NULL; 
-        // size_t size;
-        // char* data=read_file("Stormtrooper.obj",&size);
-        // // for(int i=0;i<size;i++){
-        // //     SDL_Log("%c",data[i]);
-        // // }
-        // parse_obj(data,&size);
-        // parse_obj_faces(data,&size);
-        triangle_t *triangle=triangle(-1,0,2,-1,-1,2,0,-1,2);
-        triangle_t *triangle1=triangle(1,-1,0,0,-1,0,1,0,1);
-        triangle_t *triangle2=triangle(-1,1,1,-1,0,0,0,1,1);
-        triangle_t *triangle3=triangle(1,1,-1,0,1,1,1,0,0);
-        append_triangle(triangle);
-        append_triangle(triangle1);
-        append_triangle(triangle2);
-        append_triangle(triangle3);
+        size_t size;
+        char* data=read_file("Stormtrooper.obj",&size);
+        // for(int i=0;i<size;i++){
+        //     SDL_Log("%c",data[i]);
+        // }
+        parse_obj(data,&size);
+        parse_obj_faces(data,&size);
+        // triangle_t *triangle=triangle(-1,0,2,-1,-1,2,0,-1,2);
+        // triangle_t *triangle1=triangle(1,-1,0,0,-1,0,1,0,1);
+        // triangle_t *triangle2=triangle(-1,1,1,-1,0,0,0,1,1);
+        // triangle_t *triangle3=triangle(1,1,-1,0,1,1,1,0,0);
+        // append_triangle(triangle);
+        // append_triangle(triangle1);
+        // append_triangle(triangle2);
+        // append_triangle(triangle3);
         
         SDL_Window *window=SDL_CreateWindow("window",SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,600,600,0);
 

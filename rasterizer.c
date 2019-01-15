@@ -54,6 +54,8 @@ void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
 
     bubble_sort(p,3);
 
+    //SDL_Log("p0y: %d, p1y: %d, p2y: %d",p[0].raster_y,p[1].raster_y,p[2].raster_y);
+
     float slope_p0_p2;
     if(p[2].raster_y==p[0].raster_y)  
     {
@@ -84,12 +86,12 @@ void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
             gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
         x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
         put_pixel(ctx,x1,y);
-        if(slope_p0_p1<slope_p0_p2||p[1].raster_y==p[2].raster_y){
+        if(slope_p0_p1<=slope_p0_p2||p[1].raster_y==p[2].raster_y){
                 for(x2=x;x2<x1;x2++){
                     put_pixel(ctx,x2,y);
                 } 
              }
-        else{
+        else if(slope_p0_p1>slope_p0_p2||p[1].raster_y==p[2].raster_y){
                 for(x2=x1;x2<x;x2++){
                     put_pixel(ctx,x2,y);
                 } 
@@ -106,23 +108,25 @@ void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
             gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
         x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
         put_pixel(ctx,x1,y);        
-        if(slope_p0_p1<slope_p0_p2){
+        if(slope_p0_p1<=slope_p0_p2||p[1].raster_y==p[0].raster_y){
                 for(x2=x;x2<x1;x2++){
                     put_pixel(ctx,x2,y);
                 } 
              }
-        else{
+        else if(slope_p0_p1>=slope_p0_p2||p[1].raster_y==p[0].raster_y)
+        {
                 for(x2=x1;x2<x;x2++){
                     put_pixel(ctx,x2,y);
                 } 
-             }
+        }
     }   
 } 
 
 void put_pixel(context_t *ctx,int x, int y){ 
     
-    if(x<0||x>=ctx->width||y<0||y>=ctx->height)
+    if(x<0||x>=ctx->width||y<0||y>=ctx->height){      
         return;
+    }
     int index_a = (y*ctx->width+x)*4; 
     ctx->framebuffer[index_a++]=255;
     ctx->framebuffer[index_a++]=255;
