@@ -1,6 +1,6 @@
 CC=clang
 CPPCHECK=C:\Program Files\Cppcheck\cppcheck.exe
-CFLAGS=-Wall -Werror -Iinclude -Wno-pragma-pack
+CFLAGS=-Wall -Iinclude -Wno-pragma-pack
 LDFLAGS=-L. -lSDL2
 BINARY=gfx
 BINARY_TESTS=gfx_tests

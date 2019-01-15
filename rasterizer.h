@@ -1,5 +1,6 @@
 #include "aiv_math.h"
 #include <math.h>
+#include <SDL.h>
 
 typedef struct context{
     int width;

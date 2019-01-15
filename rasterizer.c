@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#define M_PI 3.1415926535897932384626433832795028841971
+
 
 vertex_t *vertex_new(Vector3_t *position){
     vertex_t *vertex=malloc(sizeof(vertex_t));
@@ -19,11 +19,11 @@ triangle_t *triangle_new(vertex_t *a,vertex_t *b, vertex_t *c){
     return triangle;
 }
 
-void append_triangle(triangle_t* value){
+void append_triangle(triangle_t* value){    
     array_of_triangle_size++;
     triangle_t *resized_area=realloc(array_of_triangles,sizeof(triangle_t)*array_of_triangle_size);
     if(!resized_area){
-        //panic
+        SDL_Log("panic");
         return;
     }
     array_of_triangles=resized_area;
@@ -43,26 +43,37 @@ static void view_to_raster(context_t *ctx, vertex_t *vertex){
 void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
     
     manage_camera(camera,triangle);
-
     view_to_raster(ctx,&triangle->a);
     view_to_raster(ctx,&triangle->b);
     view_to_raster(ctx,&triangle->c);
 
-    vertex_t p[3];
+    vertex_t* p=malloc(sizeof(vertex_t)*3);
     p[0]=triangle->a;
     p[1]=triangle->b;
     p[2]=triangle->c;
 
-    bubble_sort(p,3);
-
-    float slope_p0_p1= (p[1].raster_x-p[0].raster_x)/(p[1].raster_y-p[0].raster_y);
-    float slope_p0_p2= (p[2].raster_x-p[0].raster_x)/(p[2].raster_y-p[0].raster_y);           
+    bubble_sort(p,3);    
+    float slope_p0_p2;
+    if(p[2].raster_y==p[0].raster_y)  
+    {
+       slope_p0_p2=1;
+    }  
+    else
+    slope_p0_p2= (p[2].raster_x-p[0].raster_x)/(p[2].raster_y-p[0].raster_y);
+    float slope_p0_p1;
+    if(p[1].raster_y==p[0].raster_y)  
+    {
+        slope_p0_p1=slope_p0_p2;
+    }  
+    else       
+    slope_p0_p1= (p[1].raster_x-p[0].raster_x)/(p[1].raster_y-p[0].raster_y);
     int y;
     int x;
     int x1;
     float gradient;
     float gradient1;    
     int x2;    
+    
     for(y=p[0].raster_y;y<=p[1].raster_y;y++){        
         gradient=1;
         if(p[0].raster_y!=p[1].raster_y)
