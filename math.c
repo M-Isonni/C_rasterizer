@@ -1,7 +1,10 @@
 #include "math.h"
 
-Vector3_t Vector3_new(float x, float y,float z){
-    Vector3_t vector = {.x=x,.y=y,.z=z};
+Vector3_t *Vector3_new(float x, float y,float z){
+    Vector3_t *vector =malloc(sizeof(Vector3_t));
+    vector->x=x;
+    vector->y=y;
+    vector->z=z;
     return vector;
 }
 

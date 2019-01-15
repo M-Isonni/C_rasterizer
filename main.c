@@ -6,7 +6,10 @@ int main(int argc, char **argv){
 
         context_t ctx;
         ctx.width=600;
-        ctx.height=600;        
+        ctx.height=600;  
+
+        array_of_triangles=NULL;
+        array_of_triangle_size=0;      
         
         #define triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2)\
             triangle_new(\
@@ -15,9 +18,11 @@ int main(int argc, char **argv){
                 vertex_new(Vector3_new(x2,y2,z2))\
                 )
 
-        ctx.framebuffer=NULL;
-
-        triangle_t triangle=triangle(0,0.5,0,-0.5,0,0,0.5,-0.3,0);
+        ctx.framebuffer=NULL;        
+        triangle_t *triangle=triangle(0,0.5,0,-0.5,0,0,0.5,-0.3,0);
+        triangle_t *triangle2=triangle(0,-0.5,0,0.5,0,0,-0.5,0.3,0);
+        append_triangle(triangle);
+        append_triangle(triangle2);
 
         SDL_Init(SDL_INIT_VIDEO);
         
@@ -48,8 +53,11 @@ int main(int argc, char **argv){
             int pitch;
             SDL_LockTexture(texture,NULL,(void **)&ctx.framebuffer,&pitch);
             clear_screen(&ctx);
-            rasterize(&ctx,&triangle);
-            put_pixel(&ctx,&triangle);
+            for(int i=0;i<array_of_triangle_size;i++){
+                rasterize(&ctx,&array_of_triangles[i]);
+                put_pixel(&ctx,&array_of_triangles[i]);
+            }
+            
             SDL_UnlockTexture(texture);
             SDL_RenderCopy(renderer,texture,NULL,NULL);
             SDL_RenderPresent(renderer);

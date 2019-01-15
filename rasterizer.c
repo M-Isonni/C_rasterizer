@@ -2,16 +2,30 @@
 #include <string.h>
 #include <stdio.h>
 
-vertex_t vertex_new(Vector3_t position){
-    vertex_t vertex;
-    memset(&vertex,0,sizeof(vertex_t));
-    vertex.position=position;
+vertex_t *vertex_new(Vector3_t *position){
+    vertex_t *vertex=malloc(sizeof(vertex_t));
+    memset(vertex,0,sizeof(vertex_t));
+    vertex->position=*position;
     return vertex;
 }
 
-triangle_t triangle_new(vertex_t a,vertex_t b, vertex_t c){
-    triangle_t triangle={.a=a,.b=b,.c=c};
+triangle_t *triangle_new(vertex_t *a,vertex_t *b, vertex_t *c){
+    triangle_t *triangle= malloc(sizeof(triangle_t));
+    triangle->a=*a;
+    triangle->b=*b;
+    triangle->c=*c;
     return triangle;
+}
+
+void append_triangle(triangle_t* value){
+    array_of_triangle_size++;
+    triangle_t *resized_area=realloc(array_of_triangles,sizeof(triangle_t)*array_of_triangle_size);
+    if(!resized_area){
+        //panic
+        return;
+    }
+    array_of_triangles=resized_area;
+    array_of_triangles[array_of_triangle_size-1]=*value;
 }
 
 void rasterize(context_t *ctx,triangle_t *triangle){
@@ -30,8 +44,7 @@ void rasterize(context_t *ctx,triangle_t *triangle){
     bubble_sort(p,3);
 
     float slope_p0_p1= (p[1].raster_x-p[0].raster_x)/(p[1].raster_y-p[0].raster_y);
-    float slope_p0_p2= (p[2].raster_x-p[0].raster_x)/(p[2].raster_y-p[0].raster_y);
-    
+    float slope_p0_p2= (p[2].raster_x-p[0].raster_x)/(p[2].raster_y-p[0].raster_y);    
        
     int y;
     int x;
@@ -42,14 +55,18 @@ void rasterize(context_t *ctx,triangle_t *triangle){
     int index1;
     int x2;    
     for(y=p[0].raster_y;y<=p[1].raster_y;y++){
-        gradient=(float)(y-p[0].raster_y)/(float)(p[1].raster_y-p[0].raster_y);
+        gradient=1;
+        if(p[0].raster_y!=p[1].raster_y)
+            gradient=(float)(y-p[0].raster_y)/(float)(p[1].raster_y-p[0].raster_y);
         x = lerp(p[0].raster_x,p[1].raster_x,gradient); 
         index = (y*ctx->width+x)*4;  
         ctx->framebuffer[index++]=255;
         ctx->framebuffer[index++]=255;
         ctx->framebuffer[index++]=255;
         ctx->framebuffer[index]=255; 
-        gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
+        gradient1=1;
+        if(p[0].raster_y!=p[2].raster_y)
+            gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
         x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
         index1 = (y*ctx->width+x1)*4;
         ctx->framebuffer[index1++]=255;
@@ -77,14 +94,18 @@ void rasterize(context_t *ctx,triangle_t *triangle){
              }
         }  
     for(y=p[1].raster_y;y<=p[2].raster_y;y++){
-        gradient=(float)(y-p[1].raster_y)/(float)(p[2].raster_y-p[1].raster_y);
+        gradient=1;
+        if(p[2].raster_y!=p[1].raster_y)
+            gradient=(float)(y-p[1].raster_y)/(float)(p[2].raster_y-p[1].raster_y);
         x = lerp(p[1].raster_x,p[2].raster_x,gradient); 
         index = (y*ctx->width+x)*4;  
         ctx->framebuffer[index++]=255;
         ctx->framebuffer[index++]=255;
         ctx->framebuffer[index++]=255;
         ctx->framebuffer[index]=255; 
-        gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
+        gradient1=1;
+        if(p[0].raster_y!=p[2].raster_y)
+            gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
         x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
         index1 = (y*ctx->width+x1)*4;
         ctx->framebuffer[index1++]=255;
@@ -110,13 +131,8 @@ void rasterize(context_t *ctx,triangle_t *triangle){
                     ctx->framebuffer[index2]=255; 
                 } 
              }
-    }
-   
-}
-
-    
-
-    
+    }   
+}    
 
 
 void put_pixel(context_t *ctx,triangle_t *triangle){
@@ -146,11 +162,15 @@ void bubble_sort(vertex_t *vertexes, int size){
     int i;
     for(i=0;i<size-1;i++)
     {
-        vertex_t temp;
-        if(vertexes[i].raster_y>vertexes[i+1].raster_y){
-            temp=vertexes[i];
-            vertexes[i]=vertexes[i+1];
-            vertexes[i+1]=temp;   
+        int j;
+        for(j=i+1;j<size;j++){
+            vertex_t temp;
+            if(vertexes[i].raster_y>vertexes[j].raster_y){
+                temp=vertexes[i];
+                vertexes[i]=vertexes[j];
+                vertexes[j]=temp;   
+
+            }
         }
     }
 }
