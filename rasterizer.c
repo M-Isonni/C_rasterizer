@@ -106,7 +106,7 @@ void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
             gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
         x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
         put_pixel(ctx,x1,y);        
-        else if(slope_p0_p1<slope_p0_p2){
+        if(slope_p0_p1<slope_p0_p2){
                 for(x2=x;x2<x1;x2++){
                     put_pixel(ctx,x2,y);
                 } 
