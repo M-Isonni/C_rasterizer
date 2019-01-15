@@ -1,6 +1,6 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
-#include "rasterizer.h"
+#include "parser.h"
 
 int main(int argc, char **argv){
 
@@ -17,6 +17,8 @@ int main(int argc, char **argv){
                 vertex_new(Vector3_new(x1,y1,z1)),\
                 vertex_new(Vector3_new(x2,y2,z2))\
                 )
+
+        Vector3_t *camera=Vector3_new(0,0,-5);
 
         ctx.framebuffer=NULL;        
         triangle_t *triangle=triangle(0,0.5,0,-0.5,0,0,0.5,-0.3,0);
@@ -49,13 +51,37 @@ int main(int argc, char **argv){
                 if(event.type==SDL_QUIT){
                     running=0;
                 }
+                if(event.type==SDL_KEYDOWN){
+                    switch(event.key.keysym.scancode){
+                        case SDL_SCANCODE_LEFT:
+                            camera->x-=0.1;             
+                            break;
+                        case SDL_SCANCODE_RIGHT:
+                            camera->x+=0.1;
+                             break;             
+                        case SDL_SCANCODE_DOWN:
+                            camera->y+=0.1;
+                            break;
+                        case SDL_SCANCODE_UP:
+                            camera->y-=0.1;
+                            break; 
+                        case SDL_SCANCODE_W:
+                            camera->z+=0.1;
+                            break; 
+                        case SDL_SCANCODE_S:
+                            camera->z-=0.1;
+                            break; 
+                        default:
+                            break;
+                    }      
+                    
+                }
             }
             int pitch;
             SDL_LockTexture(texture,NULL,(void **)&ctx.framebuffer,&pitch);
             clear_screen(&ctx);
             for(int i=0;i<array_of_triangle_size;i++){
-                rasterize(&ctx,&array_of_triangles[i]);
-                put_pixel(&ctx,&array_of_triangles[i]);
+                rasterize(&ctx,&array_of_triangles[i],camera);
             }
             
             SDL_UnlockTexture(texture);

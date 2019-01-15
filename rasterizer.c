@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#define M_PI 3.1415926535897932384626433832795028841971
+
 vertex_t *vertex_new(Vector3_t *position){
     vertex_t *vertex=malloc(sizeof(vertex_t));
     memset(vertex,0,sizeof(vertex_t));
@@ -28,13 +30,23 @@ void append_triangle(triangle_t* value){
     array_of_triangles[array_of_triangle_size-1]=*value;
 }
 
-void rasterize(context_t *ctx,triangle_t *triangle){
-    triangle->a.raster_x=(ctx->width*(triangle->a.position.x+1)/2);
-    triangle->a.raster_y=ctx->height-(ctx->height*(triangle->a.position.y+1)/2);
-    triangle->b.raster_x=(ctx->width*(triangle->b.position.x+1)/2);
-    triangle->b.raster_y=ctx->height-(ctx->height*(triangle->b.position.y+1)/2);
-    triangle->c.raster_x=(ctx->width*(triangle->c.position.x+1)/2);
-    triangle->c.raster_y=ctx->height-(ctx->height*(triangle->c.position.y+1)/2);
+static void view_to_raster(context_t *ctx, vertex_t *vertex){
+    float fov = (60.0/2)*(M_PI/180);
+    float camera_distance=tan(fov);
+    float projected_x=vertex->view_position.x/(camera_distance*vertex->view_position.z);
+    float projected_y=vertex->view_position.y/(camera_distance*vertex->view_position.z);
+
+    vertex->raster_x=(projected_x+1)*(ctx->width*0.5);
+    vertex->raster_y=ctx->height-(projected_y+1)*(ctx->height*0.5);
+}
+
+void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
+    
+    manage_camera(camera,triangle);
+
+    view_to_raster(ctx,&triangle->a);
+    view_to_raster(ctx,&triangle->b);
+    view_to_raster(ctx,&triangle->c);
 
     vertex_t p[3];
     p[0]=triangle->a;
@@ -44,114 +56,68 @@ void rasterize(context_t *ctx,triangle_t *triangle){
     bubble_sort(p,3);
 
     float slope_p0_p1= (p[1].raster_x-p[0].raster_x)/(p[1].raster_y-p[0].raster_y);
-    float slope_p0_p2= (p[2].raster_x-p[0].raster_x)/(p[2].raster_y-p[0].raster_y);    
-       
+    float slope_p0_p2= (p[2].raster_x-p[0].raster_x)/(p[2].raster_y-p[0].raster_y);           
     int y;
     int x;
     int x1;
     float gradient;
-    float gradient1;
-    int index;
-    int index1;
+    float gradient1;    
     int x2;    
-    for(y=p[0].raster_y;y<=p[1].raster_y;y++){
+    for(y=p[0].raster_y;y<=p[1].raster_y;y++){        
         gradient=1;
         if(p[0].raster_y!=p[1].raster_y)
             gradient=(float)(y-p[0].raster_y)/(float)(p[1].raster_y-p[0].raster_y);
-        x = lerp(p[0].raster_x,p[1].raster_x,gradient); 
-        index = (y*ctx->width+x)*4;  
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index]=255; 
+        x = lerp(p[0].raster_x,p[1].raster_x,gradient);         
+        put_pixel(ctx,x,y);
         gradient1=1;
         if(p[0].raster_y!=p[2].raster_y)
             gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
         x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
-        index1 = (y*ctx->width+x1)*4;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1]=255; 
-        int index2;            
-            if(slope_p0_p1<slope_p0_p2){
+        put_pixel(ctx,x1,y);                  
+            if(slope_p0_p1<=slope_p0_p2){
                 for(x2=x;x2<x1;x2++){
-                    index2 = (y*ctx->width+x2)*4;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2]=255; 
+                    put_pixel(ctx,x2,y);
                 } 
              }
             else{
                 for(x2=x1;x2<x;x2++){
-                    index2 = (y*ctx->width+x2)*4;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2]=255; 
+                    put_pixel(ctx,x2,y);
                 } 
              }
         }  
-    for(y=p[1].raster_y;y<=p[2].raster_y;y++){
+    for(y=p[1].raster_y;y<=p[2].raster_y;y++){        
         gradient=1;
         if(p[2].raster_y!=p[1].raster_y)
             gradient=(float)(y-p[1].raster_y)/(float)(p[2].raster_y-p[1].raster_y);
-        x = lerp(p[1].raster_x,p[2].raster_x,gradient); 
-        index = (y*ctx->width+x)*4;  
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index++]=255;
-        ctx->framebuffer[index]=255; 
+        x = lerp(p[1].raster_x,p[2].raster_x,gradient);         
+        put_pixel(ctx,x,y);
         gradient1=1;
         if(p[0].raster_y!=p[2].raster_y)
             gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
         x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
-        index1 = (y*ctx->width+x1)*4;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1++]=255;
-        ctx->framebuffer[index1]=255; 
-        int index2;
-            if(slope_p0_p1<slope_p0_p2){
+        put_pixel(ctx,x1,y);
+            if(slope_p0_p1<=slope_p0_p2){
                 for(x2=x;x2<x1;x2++){
-                    index2 = (y*ctx->width+x2)*4;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2]=255; 
+                    put_pixel(ctx,x2,y);
                 } 
              }
             else{
                 for(x2=x1;x2<x;x2++){
-                    index2 = (y*ctx->width+x2)*4;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2++]=255;
-                    ctx->framebuffer[index2]=255; 
+                    put_pixel(ctx,x2,y);
                 } 
              }
     }   
-}    
+} 
 
-
-void put_pixel(context_t *ctx,triangle_t *triangle){
-    int index_a = (triangle->a.raster_y*ctx->width+triangle->a.raster_x)*4;
-    int index_b =(triangle->b.raster_y*ctx->width+triangle->b.raster_x)*4;
-    int index_c = (triangle->c.raster_y*ctx->width+triangle->c.raster_x)*4;
-
+void put_pixel(context_t *ctx,int x, int y){ 
+    
+    if(x<0||x>=ctx->width||y<0||y>=ctx->height)
+        return;
+    int index_a = (y*ctx->width+x)*4; 
     ctx->framebuffer[index_a++]=255;
     ctx->framebuffer[index_a++]=255;
     ctx->framebuffer[index_a++]=255;
-    ctx->framebuffer[index_a]=255;
-    ctx->framebuffer[index_b++]=255;
-    ctx->framebuffer[index_b++]=255;
-    ctx->framebuffer[index_b++]=255;
-    ctx->framebuffer[index_b]=255;
-    ctx->framebuffer[index_c++]=255;
-    ctx->framebuffer[index_c++]=255;
-    ctx->framebuffer[index_c++]=255;
-    ctx->framebuffer[index_c]=255;
+    ctx->framebuffer[index_a]=255;   
 }
 
 void clear_screen(context_t *ctx){
@@ -174,3 +140,18 @@ void bubble_sort(vertex_t *vertexes, int size){
         }
     }
 }
+
+void manage_camera(Vector3_t *camera,triangle_t *triangle)
+{
+    triangle->a.view_position.x=triangle->a.position.x-camera->x;
+    triangle->b.view_position.x=triangle->b.position.x-camera->x;
+    triangle->c.view_position.x=triangle->c.position.x-camera->x;
+    triangle->a.view_position.y=triangle->a.position.y-camera->y;
+    triangle->b.view_position.y=triangle->b.position.y-camera->y;
+    triangle->c.view_position.y=triangle->c.position.y-camera->y;
+    triangle->a.view_position.z=triangle->a.position.z-camera->z;
+    triangle->b.view_position.z=triangle->b.position.z-camera->z;
+    triangle->c.view_position.z=triangle->c.position.z-camera->z;
+   
+}
+

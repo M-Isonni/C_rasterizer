@@ -1,4 +1,4 @@
-#include "math.h"
+#include "aiv_math.h"
 
 Vector3_t *Vector3_new(float x, float y,float z){
     Vector3_t *vector =malloc(sizeof(Vector3_t));

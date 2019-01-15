@@ -10,7 +10,7 @@ ifeq ($(OS),Windows_NT)
 	BINARY_TESTS:=$(BINARY_TESTS).exe
 endif
 
-gfx: main.o math.o rasterizer.o
+gfx: main.o aiv_math.o rasterizer.o	parser.o
 	$(CC) -o $(BINARY) $(LDFLAGS) $^
 
 main.o: main.c
@@ -21,10 +21,14 @@ tests.o: tests.c
 	$(CC) -c -o $@ $(CFLAGS) $^
 	$(CPPCHECK) $^
 
-math.o: math.c math.h
+aiv_math.o: aiv_math.c aiv_math.h
 	$(CC) -c -o $@ $(CFLAGS) $<
 	$(CPPCHECK) $^
 
-rasterizer.o: rasterizer.c math.h rasterizer.h
+parser.o: parser.c parser.h
+	$(CC) -c -o $@ $(CFLAGS) $<
+	$(CPPCHECK) $^
+
+rasterizer.o: rasterizer.c aiv_math.h rasterizer.h
 	$(CC) -c -o $@ $(CFLAGS) $<
 	$(CPPCHECK) $^

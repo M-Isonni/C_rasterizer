@@ -1,4 +1,5 @@
-#include "math.h"
+#include "aiv_math.h"
+#include <math.h>
 
 typedef struct context{
     int width;
@@ -12,6 +13,7 @@ typedef struct vertex{
     Vector3_t position;
     Vector3_t normal;
     Vector3_t color;
+    Vector3_t view_position;
 
     int raster_x;
     int raster_y;
@@ -29,9 +31,9 @@ triangle_t *array_of_triangles;
 size_t array_of_triangle_size;
 
 triangle_t *triangle_new(vertex_t *a,vertex_t *b, vertex_t *c);
-void rasterize(context_t *ctx,triangle_t *triangle);
-void put_pixel(context_t *ctx,triangle_t *triangle);
+void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera);
+void put_pixel(context_t *ctx,int x, int y);
 void clear_screen(context_t *ctx);
 void bubble_sort(vertex_t *vertexes, int size);
 void append_triangle(triangle_t* value);
-//void append_triangle(triangle_t *array_of_triangles[],size_t* array_of_triangle_size, triangle_t *triangle_to_append);
+void manage_camera(Vector3_t *camera,triangle_t *triangle);
