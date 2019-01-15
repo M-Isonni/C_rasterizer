@@ -12,16 +12,8 @@ char* save_vertex(char* data, int *index){
         c=realloc(c,length);       
         c[length-1]=data[*index];
         *index+=1;        
-    }
-    if(data[*index]=='v')
-    {
-        length++;
-        c=realloc(c,length);       
-        c[length-1]=0;
-        *index-=1;
-        return c;
-    }   
-    else if(data[*index]=='\n')
+    }    
+    if(data[*index]=='\n')
     {
         length++;
         c=realloc(c,length);       

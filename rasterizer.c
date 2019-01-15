@@ -52,18 +52,19 @@ void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
     p[1]=triangle->b;
     p[2]=triangle->c;
 
-    bubble_sort(p,3);    
+    bubble_sort(p,3);
+
     float slope_p0_p2;
     if(p[2].raster_y==p[0].raster_y)  
     {
-       slope_p0_p2=1;
+       slope_p0_p2= 0;
     }  
     else
     slope_p0_p2= (p[2].raster_x-p[0].raster_x)/(p[2].raster_y-p[0].raster_y);
     float slope_p0_p1;
     if(p[1].raster_y==p[0].raster_y)  
     {
-        slope_p0_p1=slope_p0_p2;
+        slope_p0_p1= 0;
     }  
     else       
     slope_p0_p1= (p[1].raster_x-p[0].raster_x)/(p[1].raster_y-p[0].raster_y);
@@ -84,13 +85,13 @@ void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
         if(p[0].raster_y!=p[2].raster_y)
             gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
         x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
-        put_pixel(ctx,x1,y);                  
-            if(slope_p0_p1<=slope_p0_p2){
+        put_pixel(ctx,x1,y);
+        if(slope_p0_p1<slope_p0_p2){
                 for(x2=x;x2<x1;x2++){
                     put_pixel(ctx,x2,y);
                 } 
              }
-            else{
+        else{
                 for(x2=x1;x2<x;x2++){
                     put_pixel(ctx,x2,y);
                 } 
@@ -107,12 +108,12 @@ void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
             gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
         x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
         put_pixel(ctx,x1,y);
-            if(slope_p0_p1<=slope_p0_p2){
+        if(slope_p0_p1<slope_p0_p2){
                 for(x2=x;x2<x1;x2++){
                     put_pixel(ctx,x2,y);
                 } 
              }
-            else{
+        else{
                 for(x2=x1;x2<x;x2++){
                     put_pixel(ctx,x2,y);
                 } 
