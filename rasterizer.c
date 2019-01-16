@@ -23,7 +23,6 @@ void append_triangle(triangle_t* value){
     array_of_triangle_size++;
     triangle_t *resized_area=realloc(array_of_triangles,sizeof(triangle_t)*array_of_triangle_size);
     if(!resized_area){
-        SDL_Log("panic");
         return;
     }
     array_of_triangles=resized_area;
@@ -47,91 +46,115 @@ void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
     view_to_raster(ctx,&triangle->b);
     view_to_raster(ctx,&triangle->c);
 
-    vertex_t* p=malloc(sizeof(vertex_t)*3);
+    vertex_t p[3];
     p[0]=triangle->a;
     p[1]=triangle->b;
     p[2]=triangle->c;
 
     bubble_sort(p,3);
     
+    Vector3_t color;
+    color.x=255;
+    color.y=255;
+    color.z=255;
+
     float slope_p0_p1 = slope(p[0].raster_x,p[0].raster_y,p[1].raster_x,p[1].raster_y);
     float slope_p0_p2 = slope(p[0].raster_x,p[0].raster_y,p[2].raster_x,p[2].raster_y);
     int slope = slope_p0_p1 >= slope_p0_p2 ? 1 : 0;    
 
-    int y;            
-    int x2;    
+    int y; 
+    int x; 
+    int x1;          
+    int x2; 
+    float gradient;   
     for(y=p[0].raster_y;y<=p[1].raster_y;y++){        
         
-        float gradient=1.0f;
+        gradient=1.0f;
         if(p[0].raster_y!=p[1].raster_y)
             gradient=(float)(y-p[0].raster_y)/(float)(p[1].raster_y-p[0].raster_y);
 
-        int x = lerp(p[0].raster_x,p[1].raster_x,gradient); 
-
-        put_pixel(ctx,x,y);
+        x = lerp(p[0].raster_x,p[1].raster_x,gradient); 
+        
+        put_pixel(ctx,x,y,&color);
         
         gradient=1.0f;
         if(p[0].raster_y!=p[2].raster_y)
             gradient=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
 
-        int x1 = lerp(p[0].raster_x,p[2].raster_x,gradient);
+        x1 = lerp(p[0].raster_x,p[2].raster_x,gradient);
 
-        put_pixel(ctx,x1,y);
+        put_pixel(ctx,x1,y,&color);
         
         if(slope==0){
                 for(x2=x;x2<x1;x2++){
-                    put_pixel(ctx,x2,y);
+                    color.x=x2;
+                    color.y=y;
+                    color.z=x1;
+                    put_pixel(ctx,x2,y,&color);
                 } 
              }
         else{
                 for(x2=x1;x2<x;x2++){
-                    put_pixel(ctx,x2,y);
+                    color.x=x2;
+                    color.y=y;
+                    color.z=x1;
+                    put_pixel(ctx,x2,y,&color);
                 } 
              }
         }  
-    
+        
+    color.x=255;
+    color.y=255;
+    color.z=255;
+
     for(y=p[1].raster_y;y<=p[2].raster_y;y++){ 
 
-        float gradient=1.0f;
+        gradient=1.0f;
         if(p[2].raster_y!=p[1].raster_y)
             gradient=(float)(y-p[1].raster_y)/(float)(p[2].raster_y-p[1].raster_y);
 
-        int x = lerp(p[1].raster_x,p[2].raster_x,gradient);  
+        x = lerp(p[1].raster_x,p[2].raster_x,gradient);  
 
-        put_pixel(ctx,x,y);
+        put_pixel(ctx,x,y,&color);
 
-        float gradient1=1.0f;
+            gradient=1.0f;
         if(p[0].raster_y!=p[2].raster_y)
-            gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
+            gradient=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
 
-        int x1 = lerp(p[0].raster_x,p[2].raster_x,gradient1);
+        x1 = lerp(p[0].raster_x,p[2].raster_x,gradient);
 
-        put_pixel(ctx,x1,y);    
+        put_pixel(ctx,x1,y,&color);    
             
         if(slope==0){
                 for(x2=x;x2<x1;x2++){
-                    put_pixel(ctx,x2,y);
+                    color.x=x2;
+                    color.y=y;
+                    color.z=x1;
+                    put_pixel(ctx,x2,y,&color);
                 } 
              }
         else
         {
                 for(x2=x1;x2<x;x2++){
-                    put_pixel(ctx,x2,y);
+                    color.x=x2;
+                    color.y=y;
+                    color.z=x1;
+                    put_pixel(ctx,x2,y,&color);
                 } 
         }
     }   
 } 
 
-void put_pixel(context_t *ctx,int x, int y){ 
+void put_pixel(context_t *ctx,int x, int y, Vector3_t* color){ 
     
     if(x<0||x>=ctx->width||y<0||y>=ctx->height){      
         return;
     }
     int index_a = (y*ctx->width+x)*4; 
-    ctx->framebuffer[index_a++]=255;
-    ctx->framebuffer[index_a++]=255;
-    ctx->framebuffer[index_a++]=255;
-    ctx->framebuffer[index_a]=255;   
+    ctx->framebuffer[index_a++]=0;
+    ctx->framebuffer[index_a++]=color->z;//b
+    ctx->framebuffer[index_a++]=color->y;//g
+    ctx->framebuffer[index_a]=color->x;//r   
 }
 
 void clear_screen(context_t *ctx){
