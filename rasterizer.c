@@ -53,67 +53,67 @@ void rasterize(context_t *ctx,triangle_t *triangle,Vector3_t *camera){
     p[2]=triangle->c;
 
     bubble_sort(p,3);
-
-    //SDL_Log("p0y: %d, p1y: %d, p2y: %d",p[0].raster_y,p[1].raster_y,p[2].raster_y);
-
-    float slope_p0_p2;
-    if(p[2].raster_y==p[0].raster_y)  
-    {
-       slope_p0_p2= 1.0f;
-    }  
-    else
-    slope_p0_p2= (p[2].raster_x-p[0].raster_x)/(p[2].raster_y-p[0].raster_y);
-    float slope_p0_p1;
-    if(p[1].raster_y==p[0].raster_y)  
-    {
-        slope_p0_p1=1.0f;
-    }  
-    else       
-    slope_p0_p1= (p[1].raster_x-p[0].raster_x)/(p[1].raster_y-p[0].raster_y);
-    int y;
-    int x;
-    int x1;        
-    int x2;    
     
+    float slope_p0_p1 = slope(p[0].raster_x,p[0].raster_y,p[1].raster_x,p[1].raster_y);
+    float slope_p0_p2 = slope(p[0].raster_x,p[0].raster_y,p[2].raster_x,p[2].raster_y);
+    int slope = slope_p0_p1 >= slope_p0_p2 ? 1 : 0;    
+
+    int y;            
+    int x2;    
     for(y=p[0].raster_y;y<=p[1].raster_y;y++){        
+        
         float gradient=1.0f;
         if(p[0].raster_y!=p[1].raster_y)
             gradient=(float)(y-p[0].raster_y)/(float)(p[1].raster_y-p[0].raster_y);
-        x = lerp(p[0].raster_x,p[1].raster_x,gradient);         
+
+        int x = lerp(p[0].raster_x,p[1].raster_x,gradient); 
+
         put_pixel(ctx,x,y);
-        float gradient1=1.0f;
+        
+        gradient=1.0f;
         if(p[0].raster_y!=p[2].raster_y)
-            gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
-        x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
+            gradient=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
+
+        int x1 = lerp(p[0].raster_x,p[2].raster_x,gradient);
+
         put_pixel(ctx,x1,y);
-        if(slope_p0_p1<=slope_p0_p2||p[1].raster_y==p[2].raster_y){
+        
+        if(slope==0){
                 for(x2=x;x2<x1;x2++){
                     put_pixel(ctx,x2,y);
                 } 
              }
-        else if(slope_p0_p1>slope_p0_p2||p[1].raster_y==p[2].raster_y){
+        else{
                 for(x2=x1;x2<x;x2++){
                     put_pixel(ctx,x2,y);
                 } 
              }
         }  
-    for(y=p[1].raster_y;y<=p[2].raster_y;y++){               
+    
+    for(y=p[1].raster_y;y<=p[2].raster_y;y++){ 
+
         float gradient=1.0f;
         if(p[2].raster_y!=p[1].raster_y)
             gradient=(float)(y-p[1].raster_y)/(float)(p[2].raster_y-p[1].raster_y);
-        x = lerp(p[1].raster_x,p[2].raster_x,gradient);         
+
+        int x = lerp(p[1].raster_x,p[2].raster_x,gradient);  
+
         put_pixel(ctx,x,y);
+
         float gradient1=1.0f;
         if(p[0].raster_y!=p[2].raster_y)
             gradient1=(float)(y-p[0].raster_y)/(p[2].raster_y-p[0].raster_y);
-        x1=lerp(p[0].raster_x,p[2].raster_x,gradient1);
-        put_pixel(ctx,x1,y);        
-        if(slope_p0_p1<=slope_p0_p2||p[1].raster_y==p[0].raster_y){
+
+        int x1 = lerp(p[0].raster_x,p[2].raster_x,gradient1);
+
+        put_pixel(ctx,x1,y);    
+            
+        if(slope==0){
                 for(x2=x;x2<x1;x2++){
                     put_pixel(ctx,x2,y);
                 } 
              }
-        else if(slope_p0_p1>=slope_p0_p2||p[1].raster_y==p[0].raster_y)
+        else
         {
                 for(x2=x1;x2<x;x2++){
                     put_pixel(ctx,x2,y);
@@ -167,5 +167,11 @@ void manage_camera(Vector3_t *camera,triangle_t *triangle)
     triangle->b.view_position.z=triangle->b.position.z-camera->z;
     triangle->c.view_position.z=triangle->c.position.z-camera->z;
    
+}
+
+float slope(float x0,float y0,float x1, float y1){
+
+    return (x1-x0)/(y1-y0);
+
 }
 

@@ -38,3 +38,4 @@ void clear_screen(context_t *ctx);
 void bubble_sort(vertex_t *vertexes, int size);
 void append_triangle(triangle_t* value);
 void manage_camera(Vector3_t *camera,triangle_t *triangle);
+float slope(float x0,float y0,float x1, float y1);
